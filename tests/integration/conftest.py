@@ -5,11 +5,13 @@ from typing import Awaitable, Callable
 import pytest
 from aiohttp.abc import Application
 from aiohttp.test_utils import TestClient
+from dependency_injector.containers import DeclarativeContainer, override
+from dependency_injector.providers import Configuration, Object
 from redis.asyncio import Redis
 
 from app.config import RedisSettings
 from app.db.models import Currency
-from app.main import create_app
+from app.main import Container, create_app
 
 
 @pytest.fixture
@@ -32,11 +34,11 @@ async def client(app: Application, aiohttp_client: Callable[[Application], Await
 
 
 @pytest.fixture(scope="session")
-async def redis(redis_settings: RedisSettings) -> Redis:
+async def redis(test_redis_settings: RedisSettings) -> Redis:
     connection = Redis(
-        host=redis_settings.host,
-        port=redis_settings.port,
-        password=redis_settings.password.get_secret_value(),
+        host=test_redis_settings.host,
+        port=test_redis_settings.port,
+        password=test_redis_settings.password.get_secret_value(),
         decode_responses=True,
     )
 
@@ -60,12 +62,17 @@ async def prepare_redis(redis: Redis, eur: Currency, rub: Currency) -> None:
 
 
 @pytest.fixture(scope="session")
-def redis_settings() -> RedisSettings:
+def test_redis_settings() -> RedisSettings:
     return RedisSettings()
 
 
 @pytest.fixture(scope="session")
-def app() -> Application:
+def app(redis: Redis, test_redis_settings: RedisSettings) -> Application:
+    @override(Container)
+    class TestContainer(DeclarativeContainer):
+        redis_settings = Configuration(pydantic_settings=[test_redis_settings])
+        redis_session = Object(redis)
+
     return create_app()
 
 
