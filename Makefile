@@ -1,3 +1,6 @@
+dev:
+	adev runserver app/main.py
+
 pshell:
 	PIPENV_DONT_LOAD_ENV=1 pipenv shell
 
