@@ -15,13 +15,19 @@ from app.main import Container, create_app
 
 
 @pytest.fixture
-def rub() -> Currency:
-    return Currency(code="RUB", direct_quote=Decimal(50), reverse_quote=Decimal("0.0001"))
+async def rub(redis: Redis) -> Currency:
+    curr = Currency(code="RUB", direct_quote=Decimal(50), reverse_quote=Decimal("0.0001"))
+    await redis.rpush(curr.code, *map(str, [curr.direct_quote, curr.reverse_quote]))
+
+    return curr
 
 
 @pytest.fixture
-def eur() -> Currency:
-    return Currency(code="EUR", direct_quote=Decimal(10), reverse_quote=Decimal("0.1"))
+async def eur(redis: Redis) -> Currency:
+    curr = Currency(code="EUR", direct_quote=Decimal(10), reverse_quote=Decimal("0.1"))
+    await redis.rpush(curr.code, *map(str, [curr.direct_quote, curr.reverse_quote]))
+
+    return curr
 
 
 @pytest.fixture
@@ -48,14 +54,7 @@ async def redis(test_redis_settings: RedisSettings) -> Redis:
 
 
 @pytest.fixture(autouse=True)
-async def prepare_redis(redis: Redis, eur: Currency, rub: Currency) -> None:
-    pipe = redis.pipeline()
-
-    for curr in (eur, rub):
-        pipe = pipe.rpush(curr.code, str(curr.direct_quote), str(curr.reverse_quote))
-
-    await pipe.execute()
-
+async def flush_redis(redis: Redis) -> None:
     yield
 
     await redis.flushdb()
@@ -88,3 +87,7 @@ def event_loop() -> AbstractEventLoop:
 
 def error(code: str, message: str) -> dict:
     return {"error": {"code": code, "msg": message}}
+
+
+def success() -> dict:
+    return {"msg": "Success"}

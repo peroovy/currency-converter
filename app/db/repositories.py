@@ -17,3 +17,20 @@ class CurrencyRepository(ICurrencyRepository):
         direct_quote, reverse_quote = quotes
 
         return Currency(code=code, direct_quote=direct_quote, reverse_quote=reverse_quote)
+
+    async def put(self, *currencies: Currency) -> None:
+        pipe = self._session.pipeline()
+
+        for curr in currencies:
+            code = self._prepare_code(curr.code)
+            pipe = pipe.delete(code)
+            pipe = pipe.rpush(code, str(curr.direct_quote), str(curr.reverse_quote))
+
+        await pipe.execute()
+
+    async def flush(self) -> None:
+        await self._session.flushdb()
+
+    @staticmethod
+    def _prepare_code(code: str) -> str:
+        return code.upper()
