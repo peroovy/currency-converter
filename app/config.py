@@ -8,6 +8,7 @@ from pydantic import BaseSettings, Field, SecretStr
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+BASE_CURRENCY_CODE = "USD"
 CURRENCY_DECIMAL_PLACES = 4
 CURRENCY_CODE_LENGTH = 3
 

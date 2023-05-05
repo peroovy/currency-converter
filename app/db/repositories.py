@@ -1,5 +1,8 @@
+from decimal import Decimal
+
 from redis.asyncio.client import Redis
 
+from app.config import BASE_CURRENCY_CODE
 from app.db.models import Currency
 from app.domain.services import ICurrencyRepository
 
@@ -7,10 +10,14 @@ from app.domain.services import ICurrencyRepository
 class CurrencyRepository(ICurrencyRepository):
     def __init__(self, session: Redis):
         self._session = session
+        self._base_currency_code = self._prepare_code(BASE_CURRENCY_CODE)
 
     async def find_by_code(self, code: str) -> Currency | None:
-        quotes = await self._session.lrange(code, 0, -1)
+        code = self._prepare_code(code)
+        if code == self._base_currency_code:
+            return Currency(code=code, direct_quote=Decimal(1), reverse_quote=Decimal(1))
 
+        quotes = await self._session.lrange(code, 0, -1)
         if not quotes:
             return None
 
