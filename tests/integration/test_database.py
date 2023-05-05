@@ -64,6 +64,7 @@ async def test(client: TestClient, redis: Redis, rub: Currency, eur: Currency, d
 @pytest.mark.parametrize(
     ["body", "merge", "is_valid"],
     [
+        [None, 0, False],
         [[{"code": "RUB", "directQuote": 1, "reverseQuote": 1}], -1, False],
         [[{"code": "RUB", "directQuote": 1, "reverseQuote": 1}], 0, True],
         [[{"code": "RUB", "directQuote": 1, "reverseQuote": 1}], 1, True],
@@ -91,6 +92,7 @@ async def test(client: TestClient, redis: Redis, rub: Currency, eur: Currency, d
         ],
     ],
     ids=[
+        "no body",
         "merge param is less than 0",
         "merge param is 0",
         "merge param is 1",
