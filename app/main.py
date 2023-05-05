@@ -1,9 +1,9 @@
 from aiohttp.web import Application, run_app
 from dependency_injector.containers import DeclarativeContainer
-from dependency_injector.providers import Callable, Configuration, Factory, List, Object, Singleton
+from dependency_injector.providers import Callable, Configuration, Factory, List, Singleton
 from redis.asyncio.client import Redis
 
-from app.config import RedisSettings
+from app.config import AppSettings, RedisSettings
 from app.db.repositories import CurrencyRepository
 from app.domain.services import Converter
 from app.presentation.handlers import ConverterHandlers
@@ -12,6 +12,8 @@ from app.presentation.routes import get_converter_routes
 
 
 class Container(DeclarativeContainer):
+    app_settings = Configuration(pydantic_settings=[AppSettings()])
+
     redis_settings = Configuration(pydantic_settings=[RedisSettings()])
     redis_session = Singleton(
         Redis,
@@ -26,7 +28,7 @@ class Container(DeclarativeContainer):
 
     handlers = Factory(ConverterHandlers, converter=converter)
 
-    middlewares = List(Object(process_error))
+    middlewares = List(Callable(process_error, debug=app_settings.debug))
 
     routes = Callable(get_converter_routes, handlers=handlers)
 

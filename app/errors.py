@@ -10,6 +10,3 @@ class APIError(Exception, ABC):
     @property
     def status_code(self) -> int:
         return 400
-
-    def dict(self) -> dict:
-        return {"error": {"code": self.__class__.__name__, "msg": self.message}}

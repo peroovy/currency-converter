@@ -18,6 +18,10 @@ class Settings(BaseSettings, ABC):
         env_file = join(BASE_DIR, ".env")
 
 
+class AppSettings(Settings):
+    debug: bool = Field(env="DEBUG", default=False)
+
+
 class RedisSettings(Settings):
     db: int = Field(env="REDIS_DB", ge=0, le=16)
     host: str = Field(env="REDIS_HOST")
