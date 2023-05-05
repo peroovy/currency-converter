@@ -1,15 +1,23 @@
+from abc import ABC
 from enum import IntEnum
 
 from _decimal import Decimal
-from pydantic import Field, validator
+from pydantic import BaseModel, Field, validator
 
 from app.config import CURRENCY_CODE_LENGTH, CURRENCY_DECIMAL_PLACES
-from app.entities import Entity
+from app.domain.utils import camelize_snakecase
 
 
 class UpdatingMode(IntEnum):
     FLUSH = 0
     MERGE = 1
+
+
+class Entity(BaseModel, ABC):
+    class Config:
+        allow_mutation = False
+        alias_generator = camelize_snakecase
+        allow_population_by_field_name = True
 
 
 class ConversionIn(Entity):
