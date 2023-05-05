@@ -33,7 +33,7 @@ class Container(DeclarativeContainer):
     routes = Callable(get_converter_routes, handlers=handlers)
 
 
-def create_app() -> Application:
+async def create_app() -> Application:
     container = Container()
 
     app = Application(middlewares=container.middlewares())

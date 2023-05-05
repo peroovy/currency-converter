@@ -66,13 +66,13 @@ def test_redis_settings() -> RedisSettings:
 
 
 @pytest.fixture(scope="session")
-def app(redis: Redis, test_redis_settings: RedisSettings) -> Application:
+async def app(redis: Redis, test_redis_settings: RedisSettings) -> Application:
     @override(Container)
     class TestContainer(DeclarativeContainer):
         redis_settings = Configuration(pydantic_settings=[test_redis_settings])
         redis_session = Object(redis)
 
-    return create_app()
+    return await create_app()
 
 
 @pytest.fixture(scope="session")

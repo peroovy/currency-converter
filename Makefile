@@ -1,3 +1,9 @@
+up:
+	docker-compose up --build -d
+
+down:
+	docker-compose down
+
 dev:
 	adev runserver app/main.py
 
