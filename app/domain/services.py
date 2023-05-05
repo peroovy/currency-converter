@@ -26,8 +26,8 @@ class Converter:
         self._currency_repo = currency_repository
 
     async def convert(self, conversion: ConversionIn) -> ConversionOut:
-        from_currency = await self._currency_repo.find_by_code(conversion.from_currency.upper())
-        to_currency = await self._currency_repo.find_by_code(conversion.to_currency.upper())
+        from_currency = await self._currency_repo.find_by_code(conversion.from_currency)
+        to_currency = await self._currency_repo.find_by_code(conversion.to_currency)
 
         if not from_currency or not to_currency:
             raise UnknownCurrencyError
