@@ -1,8 +1,26 @@
 up:
 	docker-compose up --build -d
 
+build:
+	docker-compose build
+
 down:
 	docker-compose down
+
+test:
+	make build
+	docker-compose run app pytest tests
+	make down
+
+unit:
+	make build
+	docker-compose run app pytest tests -m unit
+	make down
+
+integration:
+	make build
+	docker-compose run app pytest tests -m integration
+	make down
 
 dev:
 	adev runserver app/main.py
@@ -14,12 +32,3 @@ lint:
 	isort . & \
 	flake8 --config=setup.cfg & \
 	black . --config=pyproject.toml
-
-test:
-	pytest tests
-
-unit:
-	pytest tests -m unit
-
-integration:
-	pytest tests -m integration
