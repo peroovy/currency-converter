@@ -13,6 +13,11 @@ services:
     depends_on:
       - redis
 
+  swagger:
+    container_name: swagger
+    build: swagger/
+    restart: always
+
   nginx:
     container_name: nginx
     build: nginx/
@@ -21,3 +26,4 @@ services:
       - "80:80"
     depends_on:
       - app
+      - swagger

@@ -1,0 +1,141 @@
+openapi: 3.0.0
+info:
+  title: Cross-rate currency converter API
+  version: 1.0.0
+servers:
+  - url: http://localhost
+    description: dev server
+tags:
+  - name: currency
+paths:
+  /convert:
+    get:
+      tags:
+        - currency
+      summary: Convert one currency to another
+      description: >
+        400 codes:
+          * UnknownCurrencyError
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            example: USD
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            example: RUB
+        - name: amount
+          in: query
+          required: true
+          schema:
+            type: number
+            example: 40
+      responses:
+        200:
+          description: Success conversion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionOut'
+        400:
+          $ref: '#/components/responses/BusinessError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+  /database:
+    post:
+      tags:
+          - currency
+      summary: Update direct and reverse currency quotes
+      parameters:
+        - name: merge
+          in: query
+          schema:
+            type: integer
+            enum: [0, 1]
+          description: >
+            Merge modes:
+             * `0` - update only currencies without flushing
+             * `1` - flush database and set new quotes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CurrencyIn'
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        422:
+          $ref: '#/components/responses/ValidationError'
+components:
+  schemas:
+    CurrencyIn:
+      properties:
+        code:
+          type: string
+          example: EUR
+        directQuote:
+          type: number
+          example: 20
+        reverseQuote:
+          type: number
+          example: 10
+    ConversionOut:
+      properties:
+        amount:
+          type: number
+          example: 42
+    APIError:
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: SomeAPIError
+            msg:
+              type: string
+              example: Error description
+    ValidationError:
+      properties:
+        loc:
+          type: array
+          items:
+            type: string
+        msg:
+          type: string
+        type:
+          type: string
+
+  responses:
+    Success:
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              msg:
+                type: string
+                example: Success
+    BusinessError:
+      description: Business error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+
+    ValidationError:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ValidationError'
