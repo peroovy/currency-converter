@@ -1,4 +1,3 @@
-from asyncio import AbstractEventLoop, get_event_loop_policy
 from decimal import Decimal
 from typing import Awaitable, Callable
 
@@ -73,16 +72,6 @@ async def app(redis: Redis, test_redis_settings: RedisSettings) -> Application:
         redis_session = Object(redis)
 
     return await create_app()
-
-
-@pytest.fixture(scope="session")
-def event_loop() -> AbstractEventLoop:
-    policy = get_event_loop_policy()
-    loop = policy.new_event_loop()
-
-    yield loop
-
-    loop.close()
 
 
 def error(code: str, message: str) -> dict:

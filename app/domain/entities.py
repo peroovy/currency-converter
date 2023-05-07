@@ -1,5 +1,6 @@
 from abc import ABC
 from enum import IntEnum
+from functools import partial
 
 from _decimal import Decimal
 from pydantic import BaseModel, Field, validator
@@ -13,6 +14,10 @@ class UpdatingMode(IntEnum):
     MERGE = 1
 
 
+CodeField = partial(Field, regex=f"^[a-zA-Z]{{{CURRENCY_CODE_LENGTH}}}")
+QuoteField = partial(Field, ge=0, decimal_places=CURRENCY_DECIMAL_PLACES)
+
+
 class Entity(BaseModel, ABC):
     class Config:
         allow_mutation = False
@@ -21,23 +26,23 @@ class Entity(BaseModel, ABC):
 
 
 class ConversionIn(Entity):
-    from_currency: str = Field(alias="from", min_length=CURRENCY_CODE_LENGTH, max_length=CURRENCY_CODE_LENGTH)
-    to_currency: str = Field(alias="to", min_length=CURRENCY_CODE_LENGTH, max_length=CURRENCY_CODE_LENGTH)
-    amount: Decimal = Field(gt=0, decimal_places=CURRENCY_DECIMAL_PLACES)
+    from_currency: str = CodeField(alias="from")
+    to_currency: str = CodeField(alias="to")
+    amount: Decimal = QuoteField()
 
 
 class ConversionOut(Entity):
-    amount: Decimal = Field(gt=0)
+    amount: Decimal = QuoteField()
 
 
 class CurrencyIn(Entity):
-    code: str = Field(min_length=CURRENCY_CODE_LENGTH, max_length=CURRENCY_CODE_LENGTH)
-    direct_quote: Decimal = Field(decimal_places=CURRENCY_DECIMAL_PLACES)
-    reverse_quote: Decimal = Field(decimal_places=CURRENCY_DECIMAL_PLACES)
+    code: str = CodeField()
+    direct_quote: Decimal = QuoteField(ge=None, gt=0)
+    reverse_quote: Decimal = QuoteField(ge=None, gt=0)
 
 
-class UpdatingParams(Entity):
-    merge: UpdatingMode
+class UpdatingOptions(Entity):
+    mode: UpdatingMode = Field(alias="merge")
 
 
 class UpdatingIn(Entity):
