@@ -10,6 +10,9 @@ from app.domain.services import Converter
 from tests.unit.conftest import MockCurrencyRepository
 
 
+pytestmark = [pytest.mark.unit]
+
+
 @pytest.mark.parametrize(
     ["amount", "from_reverse_quote", "to_direct_quote", "expected"],
     [

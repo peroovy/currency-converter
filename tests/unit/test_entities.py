@@ -15,6 +15,9 @@ from app.domain.entities import (
 )
 
 
+pytestmark = [pytest.mark.unit]
+
+
 T = TypeVar("T", bound=Entity)
 
 
