@@ -59,8 +59,8 @@ paths:
             enum: [0, 1]
           description: >
             Merge modes:
-             * `0` - update only currencies without flushing
-             * `1` - flush database and set new quotes
+             * `0` - flush database and set new quotes
+             * `1` - update only currencies without flushing
       requestBody:
         content:
           application/json:
