@@ -6,6 +6,7 @@ from redis.asyncio.client import Redis
 from app.config import AppSettings, RedisSettings
 from app.db.repositories import CurrencyRepository
 from app.domain.services import Converter
+from app.logging import setup_logging
 from app.presentation.handlers import ConverterHandlers
 from app.presentation.middlewares import process_error
 from app.presentation.routes import get_converter_routes
@@ -38,6 +39,8 @@ async def create_app() -> Application:
 
     app = Application(middlewares=container.middlewares())
     app.add_routes(container.routes())
+
+    setup_logging(container.app_settings.debug)
 
     return app
 

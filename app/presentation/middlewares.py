@@ -4,6 +4,7 @@ from aiohttp.abc import Request
 from aiohttp.web import middleware
 from aiohttp.web_exceptions import HTTPException
 from aiohttp.web_response import Response, json_response
+from loguru import logger
 from pydantic import ValidationError
 
 from app.errors import APIError
@@ -27,7 +28,9 @@ def process_error(debug: bool) -> Callable:
 
         except Exception as exc:
             if debug:
-                raise exc
+                raise
+
+            logger.exception(exc)
 
             return error_response(code="ServerError", msg="Internal Server Error", status_code=500)
 

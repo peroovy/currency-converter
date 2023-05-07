@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from decimal import Decimal
 
+from loguru import logger
+
 from app.config import CURRENCY_DECIMAL_PLACES
 from app.db.models import Currency
 from app.domain.entities import ConversionIn, ConversionOut, UpdatingIn, UpdatingMode, UpdatingOptions
@@ -34,18 +36,22 @@ class Converter:
 
         amount = self._round_currency(conversion.amount * from_currency.reverse_quote * to_currency.direct_quote)
 
+        logger.info(f"Conversion {conversion.amount} of {from_currency.dict()} to {amount} of {to_currency.dict()}")
+
         return ConversionOut(amount=amount)
 
     async def update(self, data: UpdatingIn, options: UpdatingOptions) -> None:
-        currencies = (
+        currencies = list(
             Currency(code=curr_in.code, direct_quote=curr_in.direct_quote, reverse_quote=curr_in.reverse_quote)
             for curr_in in data.currencies
         )
 
         if options.mode == UpdatingMode.FLUSH:
             await self._currency_repo.flush()
+            logger.info("Flush database")
 
         await self._currency_repo.put(*currencies)
+        logger.info(f"Put {[curr.dict() for curr in currencies]}")
 
     @staticmethod
     def _round_currency(amount: Decimal) -> Decimal:

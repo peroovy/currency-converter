@@ -7,6 +7,10 @@ build:
 down:
 	docker-compose down
 
+# $s [service name]
+logs:
+	docker-compose logs $s
+
 test:
 	make build
 	docker-compose run app pytest tests
