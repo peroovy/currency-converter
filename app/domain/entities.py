@@ -38,7 +38,6 @@ class ConversionOut(Entity):
 class CurrencyIn(Entity):
     code: str = CodeField()
     direct_quote: Decimal = QuoteField(ge=None, gt=0)
-    reverse_quote: Decimal = QuoteField(ge=None, gt=0)
 
 
 class UpdatingOptions(Entity):

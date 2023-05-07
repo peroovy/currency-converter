@@ -14,13 +14,13 @@ pytestmark = [pytest.mark.unit]
 
 
 @pytest.mark.parametrize(
-    ["amount", "from_reverse_quote", "to_direct_quote", "expected"],
+    ["amount", "from_quote", "to_quote", "expected"],
     [
-        ["1", "2", "3", "6"],
-        ["1", "0.0001", "0.3333", "0"],
-        ["10", "0.0001", "0.3333", "0.0003"],
-        ["10", "0.0001", "0.3633", "0.0004"],
-        ["1337", "1.2345", "67.89", "112054.2441"],
+        ["1", "12", "2", "6"],
+        ["1", "1", "10_000", "0.0001"],
+        ["1", "1", "100_000", "0"],
+        ["1", "15", "100_000", "0.0002"],
+        ["1337.228", "1.2345", "67.89", "24.3159"],
     ],
 )
 async def test_correct_conversion(
@@ -28,17 +28,14 @@ async def test_correct_conversion(
     currency_repository: MockCurrencyRepository,
     conversion_in: ConversionIn,
     amount: str,
-    from_reverse_quote: str,
-    to_direct_quote: str,
+    from_quote: str,
+    to_quote: str,
     expected: str,
 ):
-    def find_by_code(code: str) -> Mock:
-        currency = Mock()
-        currency.code = code
-        currency.direct_quote = None if code == conversion_in.from_currency else Decimal(to_direct_quote)
-        currency.reverse_quote = Decimal(from_reverse_quote) if code == conversion_in.from_currency else None
-
-        return currency
+    def find_by_code(code: str) -> Currency:
+        return Currency(
+            code=code, direct_quote=Decimal(from_quote) if code == conversion_in.from_currency else Decimal(to_quote)
+        )
 
     currency_repository.find_by_code_mock = MagicMock(side_effect=find_by_code)
     conversion_in = ConversionIn(
@@ -114,8 +111,8 @@ def conversion_in(from_currency: str = "FRO", to_currency: str = "TOO", amount: 
 @pytest.fixture
 def updating_in() -> UpdatingIn:
     currencies = [
-        CurrencyIn(code="RUB", direct_quote=Decimal(1), reverse_quote=Decimal(2)),
-        CurrencyIn(code="EUR", direct_quote=Decimal(10), reverse_quote=Decimal(20)),
+        CurrencyIn(code="RUB", direct_quote=Decimal(1)),
+        CurrencyIn(code="EUR", direct_quote=Decimal(10)),
     ]
 
     return UpdatingIn(currencies=currencies)

@@ -1,7 +1,7 @@
-from app.errors import APIError
+from app.error import Error
 
 
-class UnknownCurrencyError(APIError):
+class UnknownCurrencyError(Error):
     @property
     def message(self) -> str:
         return "Quotes are not set for one of the currencies"

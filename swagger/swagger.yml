@@ -54,6 +54,7 @@ paths:
       parameters:
         - name: merge
           in: query
+          required: true
           schema:
             type: integer
             enum: [0, 1]
@@ -83,9 +84,6 @@ components:
         directQuote:
           type: number
           example: 20
-        reverseQuote:
-          type: number
-          example: 10
     ConversionOut:
       properties:
         amount:

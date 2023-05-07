@@ -3,7 +3,7 @@ from dependency_injector.containers import DeclarativeContainer
 from dependency_injector.providers import Callable, Configuration, Factory, List, Singleton
 from redis.asyncio.client import Redis
 
-from app.config import AppSettings, RedisSettings
+from app.config import BASE_CURRENCY_CODE, AppSettings, RedisSettings
 from app.db.repositories import CurrencyRepository
 from app.domain.services import Converter
 from app.logging import setup_logging
@@ -24,7 +24,7 @@ class Container(DeclarativeContainer):
         decode_responses=True,
     )
 
-    currency_repository = Factory(CurrencyRepository, session=redis_session)
+    currency_repository = Factory(CurrencyRepository, session=redis_session, base_currency_code=BASE_CURRENCY_CODE)
     converter = Factory(Converter, currency_repository=currency_repository)
 
     handlers = Factory(ConverterHandlers, converter=converter)
@@ -43,7 +43,3 @@ async def create_app() -> Application:
     setup_logging(container.app_settings.debug)
 
     return app
-
-
-if __name__ == "__main__":
-    run_app(create_app())

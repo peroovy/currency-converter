@@ -7,7 +7,7 @@ from aiohttp.web_response import Response, json_response
 from loguru import logger
 from pydantic import ValidationError
 
-from app.errors import APIError
+from app.error import Error
 from app.presentation.responses import error_response
 
 
@@ -20,7 +20,7 @@ def process_error(debug: bool) -> Callable:
         except ValidationError as error:
             return json_response(text=error.json(), status=422)
 
-        except APIError as error:
+        except Error as error:
             return error_response(code=error.__class__.__name__, msg=error.message, status_code=error.status_code)
 
         except HTTPException as exc:

@@ -136,18 +136,18 @@ def test_updating_options(mode: int, is_valid: bool):
     ["currencies", "is_valid"],
     [
         [[], True],
-        [[CurrencyIn(code="RUB", direct_quote=Decimal(1), reverse_quote=Decimal(1))], True],
+        [[CurrencyIn(code="RUB", direct_quote=Decimal(1))], True],
         [
             [
-                CurrencyIn(code="RUB", direct_quote=Decimal(1), reverse_quote=Decimal(1)),
-                CurrencyIn(code="EUR", direct_quote=Decimal(2), reverse_quote=Decimal(2)),
+                CurrencyIn(code="RUB", direct_quote=Decimal(1)),
+                CurrencyIn(code="EUR", direct_quote=Decimal(2)),
             ],
             True,
         ],
         [
             [
-                CurrencyIn(code="RUB", direct_quote=Decimal(1), reverse_quote=Decimal(1)),
-                CurrencyIn(code="RUB", direct_quote=Decimal(2), reverse_quote=Decimal(2)),
+                CurrencyIn(code="RUB", direct_quote=Decimal(1)),
+                CurrencyIn(code="RUB", direct_quote=Decimal(2)),
             ],
             False,
         ],

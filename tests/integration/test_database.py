@@ -13,10 +13,7 @@ pytestmark = [pytest.mark.integration]
 
 
 async def put_currencies(client: TestClient, merge: bool, *currencies: Currency) -> ClientResponse:
-    body = [
-        {"code": curr.code, "directQuote": str(curr.direct_quote), "reverseQuote": str(curr.reverse_quote)}
-        for curr in currencies
-    ]
+    body = [{"code": currency.code, "directQuote": str(currency.direct_quote)} for currency in currencies]
 
     return await _put_currency(client, int(merge), body)
 
@@ -46,7 +43,7 @@ async def test(client: TestClient, redis: Redis, rub: Currency, eur: Currency, d
     if delete:
         await redis.delete(rub.code)
 
-    new_rub = Currency(code=rub.code, direct_quote=Decimal("12345678"), reverse_quote=Decimal("123"))
+    new_rub = Currency(code=rub.code, direct_quote=Decimal("12345678"))
 
     response = await put_currencies(client, merge, new_rub)
 
@@ -65,29 +62,29 @@ async def test(client: TestClient, redis: Redis, rub: Currency, eur: Currency, d
     ["body", "merge", "is_valid"],
     [
         [None, 0, False],
-        [[{"code": "RUB", "directQuote": 1, "reverseQuote": 1}], -1, False],
-        [[{"code": "RUB", "directQuote": 1, "reverseQuote": 1}], 0, True],
-        [[{"code": "RUB", "directQuote": 1, "reverseQuote": 1}], 1, True],
-        [[{"code": "RUB", "directQuote": 1, "reverseQuote": 1}], 2, False],
-        [[{"code": "RUB", "directQuote": 0, "reverseQuote": 0}], 2, False],
-        [[{"code": "RUB", "directQuote": 0.1234, "reverseQuote": 0.1234}], 1, True],
-        [[{"code": "RUB", "directQuote": 0.12345, "reverseQuote": 0.12345}], 1, False],
-        [[{"code": "rub", "directQuote": 1, "reverseQuote": 1}], 0, True],
-        [[{"code": "rUb", "directQuote": 1, "reverseQuote": 1}], 0, True],
-        [[{"code": "RU", "directQuote": 1, "reverseQuote": 1}], 0, False],
-        [[{"code": "RUBY", "directQuote": 1, "reverseQuote": 1}], 0, False],
+        [[{"code": "RUB", "directQuote": 1}], -1, False],
+        [[{"code": "RUB", "directQuote": 1}], 0, True],
+        [[{"code": "RUB", "directQuote": 1}], 1, True],
+        [[{"code": "RUB", "directQuote": 1}], 2, False],
+        [[{"code": "RUB", "directQuote": 0}], 2, False],
+        [[{"code": "RUB", "directQuote": 0.1234}], 1, True],
+        [[{"code": "RUB", "directQuote": 0.12345}], 1, False],
+        [[{"code": "rub", "directQuote": 1}], 0, True],
+        [[{"code": "rUb", "directQuote": 1}], 0, True],
+        [[{"code": "RU", "directQuote": 1}], 0, False],
+        [[{"code": "RUBY", "directQuote": 1}], 0, False],
         [
             [
-                {"code": "RUB", "directQuote": 1, "reverseQuote": 1},
-                {"code": "EUR", "directQuote": 1, "reverseQuote": 1},
+                {"code": "RUB", "directQuote": 1},
+                {"code": "EUR", "directQuote": 1},
             ],
             0,
             True,
         ],
         [
             [
-                {"code": "RUB", "directQuote": 1, "reverseQuote": 1},
-                {"code": "RUB", "directQuote": 2, "reverseQuote": 2},
+                {"code": "RUB", "directQuote": 1},
+                {"code": "RUB", "directQuote": 2},
             ],
             0,
             False,
@@ -99,7 +96,7 @@ async def test(client: TestClient, redis: Redis, rub: Currency, eur: Currency, d
         "merge param is 0",
         "merge param is 1",
         "merge param is greater than 1",
-        "quotes are less than 0",
+        "quote is less than 0",
         "number of quote decimal places is 4",
         "number of quote decimal places is greater than 4",
         "code is in lower case",
@@ -122,7 +119,4 @@ async def test_validation(client: TestClient, redis: Redis, merge: int | None, b
 
 
 async def exists_currency(redis: Redis, currency: Currency) -> bool:
-    actual = await redis.lrange(currency.code.upper(), 0, -1)
-    expected = list(map(str, [currency.direct_quote, currency.reverse_quote]))
-
-    return actual == expected
+    return str(currency.direct_quote) == await redis.get(currency.code)

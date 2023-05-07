@@ -34,16 +34,14 @@ class Converter:
         if not from_currency or not to_currency:
             raise UnknownCurrencyError
 
-        amount = self._round_currency(conversion.amount * from_currency.reverse_quote * to_currency.direct_quote)
-
-        logger.info(f"Conversion {conversion.amount} of {from_currency.dict()} to {amount} of {to_currency.dict()}")
+        amount = self._round_currency(from_currency.direct_quote / to_currency.direct_quote * conversion.amount)
+        logger.info(f"Conversion {conversion.amount} of {from_currency.dict()} -> {amount} of {to_currency.dict()}")
 
         return ConversionOut(amount=amount)
 
     async def update(self, data: UpdatingIn, options: UpdatingOptions) -> None:
         currencies = list(
-            Currency(code=curr_in.code, direct_quote=curr_in.direct_quote, reverse_quote=curr_in.reverse_quote)
-            for curr_in in data.currencies
+            Currency(code=currency.code, direct_quote=currency.direct_quote) for currency in data.currencies
         )
 
         if options.mode == UpdatingMode.FLUSH:
@@ -51,7 +49,7 @@ class Converter:
             logger.info("Flush database")
 
         await self._currency_repo.put(*currencies)
-        logger.info(f"Put {[curr.dict() for curr in currencies]}")
+        logger.info(f"Put {[currency.dict() for currency in currencies]}")
 
     @staticmethod
     def _round_currency(amount: Decimal) -> Decimal:

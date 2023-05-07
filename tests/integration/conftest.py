@@ -15,16 +15,16 @@ from app.main import Container, create_app
 
 @pytest.fixture
 async def rub(redis: Redis) -> Currency:
-    curr = Currency(code="RUB", direct_quote=Decimal(50), reverse_quote=Decimal("0.0001"))
-    await redis.rpush(curr.code, *map(str, [curr.direct_quote, curr.reverse_quote]))
+    curr = Currency(code="RUB", direct_quote=Decimal(50))
+    await redis.set(curr.code, str(curr.direct_quote))
 
     return curr
 
 
 @pytest.fixture
 async def eur(redis: Redis) -> Currency:
-    curr = Currency(code="EUR", direct_quote=Decimal(10), reverse_quote=Decimal("0.1"))
-    await redis.rpush(curr.code, *map(str, [curr.direct_quote, curr.reverse_quote]))
+    curr = Currency(code="EUR", direct_quote=Decimal(10))
+    await redis.set(curr.code, str(curr.direct_quote))
 
     return curr
 

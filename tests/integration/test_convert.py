@@ -48,7 +48,7 @@ async def test(client: TestClient, eur: Currency, rub: Currency, params: dict, s
     match status_code:
         case 200:
             from_curr, to_curr = (rub, eur) if params["from"].lower() == rub.code.lower() else (eur, rub)
-            expected = round(Decimal(params["amount"]) * from_curr.reverse_quote * to_curr.direct_quote, 4)
+            expected = round(Decimal(params["amount"]) * from_curr.direct_quote / to_curr.direct_quote, 4)
 
             assert body == {"amount": float(expected)}
 
