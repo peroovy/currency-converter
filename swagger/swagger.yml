@@ -79,7 +79,7 @@ components:
       properties:
         code:
           type: string
-          example: EUR
+          example: RUB
         directQuote:
           type: number
           example: 20
