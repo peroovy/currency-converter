@@ -74,6 +74,8 @@ async def test(client: TestClient, redis: Redis, rub: Currency, eur: Currency, d
         [[{"code": "RUB", "directQuote": 0.12345, "reverseQuote": 0.12345}], 1, False],
         [[{"code": "rub", "directQuote": 1, "reverseQuote": 1}], 0, True],
         [[{"code": "rUb", "directQuote": 1, "reverseQuote": 1}], 0, True],
+        [[{"code": "RU", "directQuote": 1, "reverseQuote": 1}], 0, False],
+        [[{"code": "RUBY", "directQuote": 1, "reverseQuote": 1}], 0, False],
         [
             [
                 {"code": "RUB", "directQuote": 1, "reverseQuote": 1},
@@ -102,6 +104,8 @@ async def test(client: TestClient, redis: Redis, rub: Currency, eur: Currency, d
         "number of quote decimal places is greater than 4",
         "code is in lower case",
         "code is in mixed case",
+        "code length is 2",
+        "code length is 4",
         "two different currencies",
         "two identical currencies",
     ],

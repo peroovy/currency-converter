@@ -14,7 +14,7 @@ class UpdatingMode(IntEnum):
     MERGE = 1
 
 
-CodeField = partial(Field, regex=f"^[a-zA-Z]{{{CURRENCY_CODE_LENGTH}}}")
+CodeField = partial(Field, regex=f"^[a-zA-Z]{{{CURRENCY_CODE_LENGTH}}}$")
 QuoteField = partial(Field, ge=0, decimal_places=CURRENCY_DECIMAL_PLACES)
 
 
